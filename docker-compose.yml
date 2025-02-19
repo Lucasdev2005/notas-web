@@ -1,0 +1,82 @@
+version: '3.8'
+
+services:
+  mongodb:
+    image: mongo:6
+    networks:
+      - mynet    
+    container_name: mongo
+    restart: always
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: ${MONGO_INITDB_ROOT_USERNAME}
+      MONGO_INITDB_ROOT_PASSWORD: ${MONGO_INITDB_ROOT_PASSWORD}
+      MONGO_INITDB_DATABASE: ${MONGO_INITDB_DATABASE}
+    volumes:
+      - mongodb_data:/data/db
+
+  mongo-express:
+    image: mongo-express
+    container_name: mongo_express
+    restart: always
+    networks:
+      - mynet
+    depends_on:
+      - mongodb
+    ports:
+      - "8081:8081"
+    environment:
+      ME_CONFIG_BASICAUTH_USERNAME: ${ME_CONFIG_BASICAUTH_USERNAME}
+      ME_CONFIG_BASICAUTH_PASSWORD: ${ME_CONFIG_BASICAUTH_PASSWORD}
+      ME_CONFIG_MONGODB_AUTH_DATABASE: ${ME_CONFIG_MONGODB_AUTH_DATABASE}
+      ME_CONFIG_MONGODB_AUTH_USERNAME: ${ME_CONFIG_MONGODB_AUTH_USERNAME}
+      ME_CONFIG_MONGODB_AUTH_PASSWORD: ${ME_CONFIG_MONGODB_AUTH_PASSWORD}
+      ME_CONFIG_MONGODB_URL: ${MONGO_URI}
+
+  api:
+    image: lucssdev2005/notas-api:latest
+    networks:
+      - mynet
+    container_name: notas-api
+    restart: always
+    depends_on:
+      - mongodb
+    ports:
+      - "3001:3001"
+    environment:
+      MONGO_URI: ${MONGO_URI}
+      MONGO_DB: ${MONGO_INITDB_DATABASE}
+      JWT_SECRET: ${JWT_SECRET}
+      PORT: 3001
+
+  web:
+    image: node:18
+    container_name: notas-web
+    restart: always
+    networks:
+      - mynet
+    depends_on:
+      - api
+    build:
+      context: .
+      target: build
+      args:
+        buildcmd: npm run build
+    ports:
+      - "3000:3000"
+    environment:
+      NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL}
+    volumes:
+      - '.:/usr/src/app'
+    working_dir: /usr/src/app 
+    command: npm run dev
+
+    # commando para deixar o container em pé para debug dentro do mesmo
+    # command: tail -f /dev/null
+
+volumes:
+  mongodb_data:
+
+networks:
+  mynet:
