@@ -28,6 +28,7 @@ export default function Notes() {
     }).then((response) => {
       setNotes(response.data);
     });
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const deleteNote = (id: string): void => {
