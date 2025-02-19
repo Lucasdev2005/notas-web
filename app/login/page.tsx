@@ -42,7 +42,7 @@ export default function Login() {
   };
 
   const handleRegister = (payload: LoginFormValues) => {
-    const endPoint = "user";
+    const endPoint = "/user";
     toaster.promise(
       apiPost<LoginFormValues, void>({ endPoint, payload }),
       {
