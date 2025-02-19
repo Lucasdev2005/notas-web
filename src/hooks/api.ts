@@ -2,13 +2,13 @@ import axios, { AxiosRequestConfig, AxiosResponse } from "axios";
 import { Request } from "../types/request";
 import Cookies from "js-cookie";
 import { TOKEN_KEY } from "../constants/token";
+import { API_URL } from "../constants/env";
 
-
+const axiosInstance = axios.create({
+  baseURL: API_URL,
+});
 
 export function useAPI() {
-  const axiosInstance = axios.create({
-    baseURL: process.env.NEXT_PUBLIC_API_URL,
-  });
 
   async function apiPost<P, R>({
     endPoint,
@@ -19,6 +19,8 @@ export function useAPI() {
     payload?: P
     config?: AxiosRequestConfig
   }): Promise<AxiosResponse<R>> {
+    console.log("[apiPOST]", API_URL);
+    
     return axiosInstance.post(endPoint, payload, {
       headers: {
         ...authorization(),
