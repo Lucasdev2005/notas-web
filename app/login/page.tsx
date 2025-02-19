@@ -20,7 +20,7 @@ export default function Login() {
   const { push } = useRouter();
 
   const handleLogin = (payload: LoginFormValues) => {
-    const endPoint = "auth";
+    const endPoint = "/auth";
     toaster.promise(
       apiPost<LoginFormValues, { token: string }>({ endPoint, payload }).then((response) => {
         console.log("Login Success: ", response.data.token);
